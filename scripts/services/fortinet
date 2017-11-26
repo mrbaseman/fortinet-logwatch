@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+
+use strict;
+use Logwatch ':all';
+
+my $Debug = $ENV{'LOGWATCH_DEBUG'} || 0;
+my $Detail = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 0;
+my $DebugCounter = 0;
+
+
+my %entries = ();
+my %OtherList = ();
+
+
+if ( $Debug >= 5 ) {
+   print STDERR "\n\nDEBUG: Inside fortinet Filter \n\n";
+   $DebugCounter = 1;
+}
+
+while (defined(my $ThisLine = <STDIN>)) {
+   if ( $Debug >= 5 ) {
+      print STDERR "DEBUG($DebugCounter): $ThisLine";
+      $DebugCounter++;
+   }
+   chomp($ThisLine);
+   if (
+       my $level = ($ThisLine =~ /level=(information|notice)/) 
+   ) {
+      # Ignore these
+   } elsif ( my ($type,$subtype,$level,$severity,$attack) 
+   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?level=(\S+) .*?severity=(\S+) .*?attack="([^"]+)"/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $level $severity $attack\n";
+      }
+      $entries{$level.": (severity=".$severity." type=".$type." subtype=".$subtype." attack=".$attack.")"} ++;
+   } elsif ( my ($type,$subtype,$level,$logdesc,$msg) 
+   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?level=(\S+) .*?logdesc="([^"]+)" .*?msg="([^"]+)"/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $level $logdesc $msg\n";
+      }
+      $entries{$logdesc.": ".$msg."(type=".$type." subtype=".$subtype." level=".$level.")"} ++;
+   } elsif ( my ($type,$subtype,$eventtype,$level) 
+   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?eventtype=(\S+) .*?level=(\S+)/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $eventtype $level\n";
+      }
+      $entries{"Event: ".$eventtype."(type=".$type." subtype=".$subtype." level=".$level.")"} ++;
+   } else {
+      # Report any unmatched entries...
+      $OtherList{$ThisLine} += 1;
+   }
+}
+
+
+###########################################################
+
+if (keys %entries) {
+   print "$_ : $entries{$_} time(s)\n" foreach keys %entries;
+}
+
+
+if (keys %OtherList) {
+   print "\n**Unmatched Entries**\n";
+   print "$_ : $OtherList{$_} time(s)\n" foreach keys %OtherList;
+}
+
+exit(0);
+
+# vi: shiftwidth=3 tabstop=3 syntax=perl et
+# Local Variables:
+# mode: perl
+# perl-indent-level: 3
+# indent-tabs-mode: nil
+# End:
