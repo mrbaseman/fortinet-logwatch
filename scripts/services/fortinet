@@ -24,23 +24,23 @@ while (defined(my $ThisLine = <STDIN>)) {
    }
    chomp($ThisLine);
    if (
-       my $level = ($ThisLine =~ /level=(information|notice)/) 
+       my $level = ($ThisLine =~ /level="?(information|notice)"?/) 
    ) {
       # Ignore these
    } elsif ( my ($type,$subtype,$level,$severity,$attack) 
-   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?level=(\S+) .*?severity=(\S+) .*?attack="([^"]+)"/) ) {
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?severity="?(\S+?)"? .*?attack="([^"]+)"/) ) {
       if ($Debug >= 5) {
          print STDERR "DEBUG: Found -$type $subtype $level $severity $attack\n";
       }
       $entries{$level.": (severity=".$severity." type=".$type." subtype=".$subtype." attack=".$attack.")"} ++;
    } elsif ( my ($type,$subtype,$level,$logdesc,$msg) 
-   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?level=(\S+) .*?logdesc="([^"]+)" .*?msg="([^"]+)"/) ) {
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?logdesc="([^"]+)" .*?msg="([^"]+)"/) ) {
       if ($Debug >= 5) {
          print STDERR "DEBUG: Found -$type $subtype $level $logdesc $msg\n";
       }
       $entries{$logdesc.": ".$msg."(type=".$type." subtype=".$subtype." level=".$level.")"} ++;
    } elsif ( my ($type,$subtype,$eventtype,$level) 
-   = ($ThisLine =~ / type=(\S+) .*?subtype=(\S+) .*?eventtype=(\S+) .*?level=(\S+)/) ) {
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?eventtype="?(\S+?)"? .*?level="?(\S+?)"?/) ) {
       if ($Debug >= 5) {
          print STDERR "DEBUG: Found -$type $subtype $eventtype $level\n";
       }
