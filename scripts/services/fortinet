@@ -40,11 +40,23 @@ while (defined(my $ThisLine = <STDIN>)) {
       }
       $entries{$logdesc.": ".$msg."(type=".$type." subtype=".$subtype." level=".$level.")"} ++;
    } elsif ( my ($type,$subtype,$eventtype,$level) 
-   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?eventtype="?(\S+?)"? .*?level="?(\S+?)"?/) ) {
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?eventtype="?(\S+?)"? .*?level="?(\S+?)"? /) ) {
       if ($Debug >= 5) {
          print STDERR "DEBUG: Found -$type $subtype $eventtype $level\n";
       }
       $entries{"Event: ".$eventtype."(type=".$type." subtype=".$subtype." level=".$level.")"} ++;
+   } elsif ( my ($type,$subtype,$level,$error)
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?error="([^"]+)"/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $level $error\n";
+      }
+      $entries{$error." (type=".$type." subtype=".$subtype." level=".$level.")"} ++;
+   } elsif ( my ($type,$subtype,$level,$msg)
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?msg="([^"]+)"/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $level $msg\n";
+      }
+      $entries{$msg." (type=".$type." subtype=".$subtype." level=".$level.")"} ++;
    } else {
       # Report any unmatched entries...
       $OtherList{$ThisLine} += 1;
