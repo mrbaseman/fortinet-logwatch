@@ -51,6 +51,12 @@ while (defined(my $ThisLine = <STDIN>)) {
          print STDERR "DEBUG: Found -$type $subtype $level $error\n";
       }
       $entries{$error." (type=".$type." subtype=".$subtype." level=".$level.")"} ++;
+   } elsif ( my ($type,$subtype,$level,$qname,$msg)
+   = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?qname="?(\S+?)"? .*?msg="([^"]+)"/) ) {
+      if ($Debug >= 5) {
+         print STDERR "DEBUG: Found -$type $subtype $level $qname $msg\n";
+      }
+      $entries{$msg.": ".$qname." (type=".$type." subtype=".$subtype." level=".$level.")"} ++;
    } elsif ( my ($type,$subtype,$level,$msg)
    = ($ThisLine =~ / type="?(\S+?)"? .*?subtype="?(\S+?)"? .*?level="?(\S+?)"? .*?msg="([^"]+)"/) ) {
       if ($Debug >= 5) {
